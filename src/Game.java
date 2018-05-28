@@ -1,25 +1,28 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
-import java.awt.image.BufferedImage;
 
+/*
+Alexander Blom
+2018-04-??
+Pac-Man
+*/
 public class Game extends Canvas implements Runnable,KeyListener {
 
     private boolean isRunning = false;
 
+    //Spel variabler
     public static final int width = 1000, height = 1000;
     public static final String title = "Pac-Man";
 
     private Thread t;
 
+    //Objekt
     public static Player player;
+    public static Bounds wallLeft, wallRight, roof, floor;
 
-    public static Bounds wall, wall2, roof, floor;
-
-    private BufferedImage testImage;
 
     public Game(){
         Dimension dimension = new Dimension(Game.width, Game.height);
@@ -28,20 +31,23 @@ public class Game extends Canvas implements Runnable,KeyListener {
         setMaximumSize(dimension);
 
         addKeyListener(this);
+
+        //Ger värde till spelobjekten.
         player = new Player(300, 300);
-        wall = new Bounds(10, 10 , 5, 600);
-        wall2 = new Bounds(600,10, 5, 600);
-        roof = new Bounds(10, 10, 600 ,5);
-        floor = new Bounds(10, 600, 600, 5);
+        wallLeft = new Bounds(0, 0 , 5, 1000);
+        wallRight = new Bounds(995,0, 5, 1000);
+        roof = new Bounds(0, 0, 1000,5);
+        floor = new Bounds(0, 995, 1000, 5);
     }
 
     public synchronized void start(){
         if(isRunning) return;
+        Assets.init();
         isRunning = true;
         t = new Thread(this);
         t.start();
-        testImage = ImageLoader.loadImage("/test4.png");
     }
+
 
     public synchronized void stop(){
         if(!isRunning) return;
@@ -56,15 +62,12 @@ public class Game extends Canvas implements Runnable,KeyListener {
     @Override
     public void run() {
         requestFocus();
-        long lastUpdate = System.nanoTime();
         long lastTick = System.nanoTime();
         int fps = 60;
-        int ups = 60;
         long dt = 1000000000 / fps;
-        long dt2 = 1000000000 / ups;
 
         while(isRunning) {
-            if(System.nanoTime() - lastTick > dt2) {
+            if(System.nanoTime() - lastTick > dt) {
                 tick();
                 render();
             }
@@ -74,26 +77,13 @@ public class Game extends Canvas implements Runnable,KeyListener {
 
     private void tick() {
         player.tick();
-       /* checkWalls(player, wall2);
-        checkWalls(player, wall);
-        checkBounds(player, floor);
-        checkBounds(player, roof);
-    */}
-
-  /*  private void checkWalls(Player player, Bounds bounds) {
-        if(player.intersects(bounds)) {
-            player.right = false;
-            player.left = false;
-        }
+        Bounds.checkBounds(player, wallRight);
+        Bounds.checkBounds(player, wallLeft);
+        Bounds.checkBounds(player, floor);
+        Bounds.checkBounds(player, roof);
     }
 
-    private void checkBounds(Player player, Bounds bounds) {
-        if(player.intersects(bounds)){
-            player.up = false;
-            player.down = false;
-        }
-    }
-*/
+
     private void render() {
         BufferStrategy bs = getBufferStrategy();
         if(bs == null){
@@ -102,25 +92,18 @@ public class Game extends Canvas implements Runnable,KeyListener {
         }
 
         Graphics g = bs.getDrawGraphics();
+
+
         g.setColor((Color.BLACK));
         g.fillRect(0, 0, Game.width, Game.height);
 
-        g.setColor(Color.GRAY);
-        for(int y = 1; y < 12; y++){
-            for(int x = 1; x < 12; x++){
-                g.fillRect(x * 50, y * 50, 50, 1);
-                g.fillRect(x * 50, y * 50, 1, 50);
-                g.fillRect((x + 1) * 50, y* 50, 1, 50);
-            }
-        }
-
-        //g.drawImage(testImage, 0, 0, null);
-
         player.render(g);
-        wall.render(g, 5, 600);
-        wall2.render(g, 5, 600);
-        roof.render(g, 600, 5);
-        floor.render(g, 600, 5);
+        wallLeft.render(g, 5, 1000);
+        wallRight.render(g, 5, 1000);
+        roof.render(g, 1000, 5);
+        floor.render(g, 1000, 5);
+
+        Tile.tiles[0].render(g, 200, 200);
 
         g.dispose();
         bs.show();
@@ -136,6 +119,7 @@ public class Game extends Canvas implements Runnable,KeyListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setFocusableWindowState(true);
+        frame.setBackground(Color.BLACK);
 
         frame.setVisible(true);
 
@@ -144,35 +128,34 @@ public class Game extends Canvas implements Runnable,KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
         int keys = e.getKeyCode();
 
-        if(keys == KeyEvent.VK_D){
+        if(keys == KeyEvent.VK_D || keys == KeyEvent.VK_RIGHT){
             player.right = true;
             player.left = false;
             player.up = false;
             player.down = false;
         }
 
-        if(keys == KeyEvent.VK_A){
+        if(keys == KeyEvent.VK_A || keys == KeyEvent.VK_LEFT){
             player.right = false;
             player.left = true;
             player.up = false;
             player.down = false;
         }
 
-        if(keys == KeyEvent.VK_W){
+        if(keys == KeyEvent.VK_W || keys == KeyEvent.VK_UP){
             player.right = false;
             player.left = false;
             player.up = true;
             player.down = false;
         }
 
-        if(keys == KeyEvent.VK_S) {
+        if(keys == KeyEvent.VK_S || keys == KeyEvent.VK_DOWN) {
             player.right = false;
             player.left = false;
             player.up = false;

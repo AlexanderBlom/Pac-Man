@@ -2,6 +2,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
+//Klass för att ladda in bilder
+
+
 public class ImageLoader {
 
     public static BufferedImage loadImage (String path){

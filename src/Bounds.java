@@ -9,4 +9,26 @@ public class Bounds extends Rectangle {
         g.setColor(Color.BLUE);
         g.fillRect(x, y, w, h);
     }
+
+    //Kollar ifall Player intersectar bounds.
+    public static void checkBounds(Player player, Bounds bounds) {
+        if(player.intersects(bounds)){
+            if(bounds == Game.wallLeft){
+                player.left = false;
+                player.x++;
+            }
+            else if(bounds == Game.wallRight){
+                player.right = false;
+                player.x--;
+            }
+            else if(bounds == Game.roof){
+                player.up = false;
+                player.y++;
+            }
+            else{
+                player.down = false;
+                player.y--;
+            }
+        }
+    }
 }

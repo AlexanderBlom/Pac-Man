@@ -1,34 +1,35 @@
 import java.awt.*;
 
+//Renderar Player och styr rörelse.
+
 public class Player extends Rectangle {
-
-
     public boolean right,left,up,down;
-    private int speed = 1;
 
-    public Player(int x,int y){
-        setBounds(x, y, 50, 50);
+
+    Player(int x, int y){
+        setBounds(x, y, 32, 32);
     }
 
+    //Kollar vilket håll Player ska röra sig
     public void tick(){
+        int speed = 1;
         if(right) {
-            x+=speed;
+            x+= speed;
         }
         if(left){
-            x-=speed;
+            x-= speed;
         }
         if(up){
-            y-=speed;
+            y-= speed;
         }
         if(down){
-            y+=speed;
+            y+= speed;
         }
 
     }
 
     public void render(Graphics g){
         g.setColor((Color.YELLOW));
-        g.fillOval(x, y,50,50);
+        g.fillOval(x, y,32,32);
     }
-
 }
